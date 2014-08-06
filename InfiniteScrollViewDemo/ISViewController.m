@@ -50,7 +50,7 @@
                                            selector:@selector(testScroll)
                                            userInfo:nil
                                             repeats:YES];
-    [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
+   [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
     [self.view addSubview:_infinite];
     [_infinite selectItemAtIndex:2 animated:NO];
     [_infinite setNeedsLayout];

@@ -10,6 +10,7 @@
 
 @interface InfiniteScrollView : UIScrollView <UIScrollViewDelegate>
 
+@property (nonatomic, strong) NSMutableArray *visibleLabels;
 @property (nonatomic) NSInteger selectedIndex;
 @property (nonatomic, strong) NSMutableArray *candidates;
 

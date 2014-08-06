@@ -25,7 +25,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "198"
             endingLineNumber = "198"
-            landmarkName = "-tileLabelsFromMinX:toMaxX:"
+            landmarkName = "-placeNewLabelOnRight:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -41,8 +41,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "141"
             endingLineNumber = "141"
-            landmarkName = "-layoutSubviews"
-            landmarkType = "5">
+            landmarkName = "@implementation InfiniteScrollView"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -73,7 +73,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "70"
             endingLineNumber = "70"
-            landmarkName = "-selectItemAtIndex:animated:"
+            landmarkName = "-selectedIndex"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -89,7 +89,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "156"
             endingLineNumber = "156"
-            landmarkName = "-placeNewLabelOnRight:"
+            landmarkName = "-recenterIfNecessary"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
