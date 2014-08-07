@@ -90,9 +90,6 @@
         return;
     }
     
-    if ([self currentIndex] == index) {
-        return;
-    }
     UIView *selectedView = _candidates[index];
     UIView *minVisibleView = _visibleLabels.firstObject;
     UIView *maxVisibleView = _visibleLabels.lastObject;
@@ -103,38 +100,44 @@
     // 1. View is shown
     if ([_visibleLabels indexOfObject:selectedView] != NSNotFound) {
         // if view is shown
-        UIView *view = [_candidates objectAtIndex:index];
+        CGPoint contentOffset = self.contentOffset;
         
-        CGPoint center = [mainWindow convertPoint:view.center
-                                         fromView:self];
-        CGPoint windowCenter = mainWindow.center;
-        CGFloat distance = windowCenter.x - center.x;
+        UIView *view = [_candidates objectAtIndex:index];
+        CGFloat distance = CGRectGetMidX(view.frame) - contentOffset.x - CGRectGetWidth(self.frame) / 2;
+
         
         offset = self.contentOffset;
-        offset.x -= distance;
+        offset.x += distance;
     } else {
         NSInteger stepsLeft = (minVisibleIndex + _candidates.count - index) % _candidates.count;
         NSInteger stepsRight = (index + _candidates.count - maxVisibleIndex) % _candidates.count;
-        
         if (stepsLeft < stepsRight &&
             CGRectGetMinX(minVisibleView.frame) - stepsLeft * CGRectGetWidth(self.bounds) > 0) {
-            CGPoint center = [mainWindow convertPoint:minVisibleView.center
-                                            fromView:self];
+            CGFloat minX = CGRectGetMinX(minVisibleView.frame);
+            for (int i = 1; i <= stepsLeft; i ++) {
+                NSInteger index = (minVisibleIndex + _candidates.count - i) % _candidates.count;
+                minX += CGRectGetWidth([(UIView *)_candidates[index] frame]);
+            }
+            CGFloat midX = minX + CGRectGetWidth([_candidates[index] frame]) / 2;
             
-            CGPoint windowCenter = mainWindow.center;
-            CGFloat distance = windowCenter.x - center.x;
+            CGFloat distance = midX - self.contentOffset.x - CGRectGetWidth(self.bounds) / 2;
             
-            offset = CGPointMake(CGRectGetMinX(minVisibleView.frame) - stepsLeft * CGRectGetWidth(self.bounds) - distance, 0);
+            offset = self.contentOffset;
+            offset.x += distance;
         } else if(CGRectGetMinX(maxVisibleView.frame) + stepsRight * CGRectGetWidth(self.bounds) < self.contentSize.width) {
-            CGPoint center = [mainWindow convertPoint:maxVisibleView.center
-                                              fromView:self];
-            
-            CGPoint windowCenter = mainWindow.center;
-            CGFloat distance = windowCenter.x - center.x;
-            offset = CGPointMake(CGRectGetMinX(maxVisibleView.frame) + stepsRight * CGRectGetWidth(self.bounds) - distance, 0) ;
+            CGFloat maxX = CGRectGetMaxX(maxVisibleView.frame);
+            for (int i = 1; i <= stepsRight; i ++) {
+                NSInteger index = (maxVisibleIndex + _candidates.count + i) % _candidates.count;
+                maxX += CGRectGetWidth([(UIView *)_candidates[index] frame]);
+            }
+            CGFloat midX = maxX - CGRectGetWidth([_candidates[index] frame]) / 2;
+            CGFloat distance = midX - self.contentOffset.x - CGRectGetWidth(self.bounds) / 2;
+            offset = self.contentOffset;
+            offset.x += distance;
         }
     }
-    [self setContentOffset:offset animated:animated];
+    [self setContentOffset:offset
+                  animated:animated];
 }
 
 #pragma mark - Layout
