@@ -11,10 +11,10 @@
 @interface InfiniteScrollView : UIScrollView <UIScrollViewDelegate>
 
 @property (nonatomic, strong) NSMutableArray *visibleLabels;
-@property (nonatomic) NSInteger selectedIndex;
 @property (nonatomic, strong) NSMutableArray *candidates;
+@property (nonatomic) NSInteger selectedIndex;
 
-- (void)selectItemAtIndex:(NSInteger)index
+- (void)centerItemAtIndex:(NSInteger)index
                  animated:(BOOL)animated;
 - (NSInteger)currentIndex;
 - (void)addViews:(NSArray *)views;

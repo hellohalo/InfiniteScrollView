@@ -37,14 +37,28 @@
     [self centerItemAtIndex:selectedIndex animated:NO];
 }
 
+- (void)adjustContentSize
+{
+    CGFloat width = 0.0f;
+    for (UIView *view in self.candidates) {
+        width += CGRectGetWidth(view.frame);
+    }
+    width = width * 2;
+    CGSize size = self.contentSize;
+    size.width = width;
+    self.contentSize = size;
+}
+
 - (void)addView:(UIView *)view
 {
     [self.candidates addObject:view];
+    [self adjustContentSize];
     [self setNeedsLayout];
 }
 
 - (void)addViews:(NSArray *)views
 {
+    [self adjustContentSize];
     [self.candidates addObjectsFromArray:views];
     [self setNeedsLayout];
 }
@@ -91,12 +105,7 @@
     }
     
     UIView *selectedView = _candidates[index];
-    UIView *minVisibleView = _visibleLabels.firstObject;
-    UIView *maxVisibleView = _visibleLabels.lastObject;
-    NSInteger minVisibleIndex = [_candidates indexOfObject:minVisibleView];
-    NSInteger maxVisibleIndex = [_candidates indexOfObject:maxVisibleView];
     CGPoint offset = CGPointZero;
-    UIWindow *mainWindow = [[[UIApplication sharedApplication] delegate] window];
     // 1. View is shown
     if ([_visibleLabels indexOfObject:selectedView] != NSNotFound) {
         // if view is shown
@@ -108,36 +117,20 @@
         
         offset = self.contentOffset;
         offset.x += distance;
+        
+        [self setContentOffset:offset
+                      animated:animated];
     } else {
-        NSInteger stepsLeft = (minVisibleIndex + _candidates.count - index) % _candidates.count;
-        NSInteger stepsRight = (index + _candidates.count - maxVisibleIndex) % _candidates.count;
-        if (stepsLeft < stepsRight &&
-            CGRectGetMinX(minVisibleView.frame) - stepsLeft * CGRectGetWidth(self.bounds) > 0) {
-            CGFloat minX = CGRectGetMinX(minVisibleView.frame);
-            for (int i = 1; i <= stepsLeft; i ++) {
-                NSInteger index = (minVisibleIndex + _candidates.count - i) % _candidates.count;
-                minX += CGRectGetWidth([(UIView *)_candidates[index] frame]);
-            }
-            CGFloat midX = minX + CGRectGetWidth([_candidates[index] frame]) / 2;
-            
-            CGFloat distance = midX - self.contentOffset.x - CGRectGetWidth(self.bounds) / 2;
-            
-            offset = self.contentOffset;
-            offset.x += distance;
-        } else if(CGRectGetMinX(maxVisibleView.frame) + stepsRight * CGRectGetWidth(self.bounds) < self.contentSize.width) {
-            CGFloat maxX = CGRectGetMaxX(maxVisibleView.frame);
-            for (int i = 1; i <= stepsRight; i ++) {
-                NSInteger index = (maxVisibleIndex + _candidates.count + i) % _candidates.count;
-                maxX += CGRectGetWidth([(UIView *)_candidates[index] frame]);
-            }
-            CGFloat midX = maxX - CGRectGetWidth([_candidates[index] frame]) / 2;
-            CGFloat distance = midX - self.contentOffset.x - CGRectGetWidth(self.bounds) / 2;
-            offset = self.contentOffset;
-            offset.x += distance;
+        // to make it easy, clean stack and restart;
+        for (UIView *view in [self.visibleLabels copy]) {
+            [view removeFromSuperview];
+            [self.visibleLabels removeObject:view];
         }
+        
+        [self placeLable:index OnRight:self.contentOffset.x];
+        
     }
-    [self setContentOffset:offset
-                  animated:animated];
+    [self setNeedsLayout];
 }
 
 #pragma mark - Layout
@@ -189,14 +182,21 @@
 
 - (CGFloat)placeNewLabelOnRight:(CGFloat)rightEdge
 {
-    NSUInteger index = [self selectedIndex];
+    NSInteger index = 0;
     if (self.visibleLabels.count) {
         UIView *right = self.visibleLabels.lastObject;
         if (rightEdge) {
             index = ([self.candidates indexOfObject:right] + self.candidates.count + 1) % self.candidates.count;
-            NSLog(@"place view %d on the right", index);
+            if ([self isKindOfClass:[VUPageView class]]) {
+                NSLog(@"place view %d on the right", index);
+            }
         }
     }
+    return [self placeLable:index OnRight:rightEdge];
+}
+
+- (CGFloat)placeLable:(NSInteger)index OnRight:(CGFloat)rightEdge
+{
     UIView *insert = self.candidates[index];
     [self.visibleLabels addObject:insert]; // add rightmost label at the end of the array
     
